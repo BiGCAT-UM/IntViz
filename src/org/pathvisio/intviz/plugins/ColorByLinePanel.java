@@ -31,6 +31,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -46,6 +47,7 @@ import org.pathvisio.desktop.visualization.ColorSet;
 import org.pathvisio.desktop.visualization.ColorSetManager;
 import org.pathvisio.gui.dialogs.OkCancelDialog;
 import org.pathvisio.intviz.plugins.ColorByLine.ConfiguredSample;
+import org.pathvisio.visualization.gui.ColorSetChooser;
 import org.pathvisio.visualization.gui.ColorSetCombo;
 import org.pathvisio.visualization.plugins.SortSampleCheckList;
 
@@ -62,8 +64,13 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	static final String ACTION_BASIC = "Basic";
+	static final String ACTION_GRADIENT = "Gradient";
 	static final String ACTION_SAMPLE = "sample";
 	static final String ACTION_OPTIONS = "options";
+	static final String ACTION_COMBO = "Colorset";	
+	static final String ACTION_LINETTHICKNESS = "Thickness";
+	static final int BASIC_MODEL = 1;
+	static final int GRADIENT_MODEL = 2;
 
 	static final ImageIcon COLOR_PICK_ICON = new ImageIcon(
 			Resources.getResourceURL("colorpicker.gif"));
@@ -73,9 +80,12 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 
 	private final ColorByLine method;
 	private final Basic basic;
+	private final Gradient gradient;
 	private final CardLayout cardLayout;
 	private final JPanel settings;
 	private final ColorSetManager csm;
+	private JCheckBox LineCheckbox;
+	private int model;
 	JButton options = new JButton("Set Visualization");
 
 
@@ -83,6 +93,8 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		this.method = method;
 		this.csm = csm;
 
+		model = BASIC_MODEL;
+		
 		setLayout(new FormLayout(
 				"4dlu, pref, 4dlu, pref, fill:pref:grow, 4dlu",
 				"4dlu, pref, 4dlu, fill:pref:grow, 4dlu"
@@ -93,9 +105,23 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		rbBasic.setActionCommand(ACTION_BASIC);
 		rbBasic.addActionListener(this);
 		buttons.add(rbBasic);
+		
+		//add the gradient method by ruizhou guo
+		JRadioButton rgBasic = new JRadioButton(ACTION_GRADIENT);
+		rgBasic.setActionCommand(ACTION_GRADIENT);
+		rgBasic.addActionListener(this);
+		buttons.add(rgBasic);
+		
+		//select if use line thickness method
+		LineCheckbox = new JCheckBox(ACTION_LINETTHICKNESS);
+		LineCheckbox.setActionCommand(ACTION_LINETTHICKNESS);
+		LineCheckbox.addActionListener(this);
+		LineCheckbox.setSelected(true);
 
 		CellConstraints cc = new CellConstraints();
 		add(rbBasic, cc.xy(2, 2));
+		add(rgBasic, cc.xy(4, 2));
+		add(LineCheckbox, cc.xy(5, 2));
 
 		settings = new JPanel();
 		settings.setBorder(BorderFactory.createEtchedBorder());
@@ -103,8 +129,10 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		settings.setLayout(cardLayout);
 
 		basic = new Basic();
+		gradient = new Gradient();
 
 		settings.add(basic, ACTION_BASIC);
+		settings.add(gradient, ACTION_GRADIENT);
 
 		add(settings, cc.xyw(2, 4, 4));
 
@@ -116,8 +144,26 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		String action = e.getActionCommand();
 		if (ACTION_BASIC.equals(action)) {
+			model = BASIC_MODEL;
 			basic.refresh();
+			basic.setModel(BASIC_MODEL);
+			basic.refreshSamples();
 			cardLayout.show(settings, action);
+		} else if (ACTION_GRADIENT.equals(action)) 
+		{
+			model = GRADIENT_MODEL;
+			gradient.refresh();
+			gradient.setModel(GRADIENT_MODEL);
+			gradient.refreshSamples();
+			cardLayout.show(settings, action);
+		} else if (ACTION_LINETTHICKNESS.equals(action)) 
+		{
+			if (BASIC_MODEL == model){
+				basic.setThicknessSelect(LineCheckbox.isSelected());
+			} else if (GRADIENT_MODEL == model)
+			{
+				gradient.setThicknessSelect(LineCheckbox.isSelected());
+			}
 		}
 	}
 
@@ -149,13 +195,22 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 
 			CellConstraints cc = new CellConstraints();
 			add(sampleList, cc.xyw(2, 2, 3));
-			add(options, cc.xy(2, 4));
+			add(options, cc.xy(2, 4));		
 			refresh();
 
 		}
 
 		void refresh() {
 			sampleList.getList().setSelectedSamples(method.getSelectedSamples());
+		}
+		
+		void setModel(int model){
+			method.setModel(model);
+		}
+		
+		void setThicknessSelect(boolean selected){
+			method.setThicknessSelect(selected);
+			refreshSamples();
 		}
 
 		private void refreshSamples() {
@@ -320,4 +375,98 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		}
 	}
 
+	/** Panel for editing GradientByLine by Ruizhou GUO*/
+	class Gradient extends JPanel implements ActionListener, ListDataListener {
+		private static final long serialVersionUID = 1L;
+
+		private final SortSampleCheckList sampleList;
+
+		ColorSetCombo colorSetCombo;
+
+		public Gradient() {
+			setLayout(new FormLayout(
+					"4dlu, pref, 2dlu, fill:pref:grow, 4dlu",
+					"4dlu, pref:grow, 4dlu, pref, 4dlu"
+					));
+
+			List<ISample> selected = method.getSelectedSamples();
+			for (ISample s : selected) if (s == null) throw new NullPointerException();
+			sampleList = new SortSampleCheckList(
+					selected, method.getGexManager()
+					);
+			sampleList.getList().addActionListener(this);
+			sampleList.getList().setActionCommand(ACTION_SAMPLE);
+			sampleList.getList().getModel().addListDataListener(this);
+
+			ColorSetChooser csChooser = new ColorSetChooser(csm, method.getGexManager());
+			colorSetCombo = csChooser.getColorSetCombo();
+			colorSetCombo.setActionCommand(ACTION_COMBO);
+			colorSetCombo.addActionListener(this);
+			
+			CellConstraints cc = new CellConstraints();
+			add(sampleList, cc.xyw(2, 2, 3));
+			add(csChooser, cc.xyw(2, 4, 3));
+			refresh();
+
+		}
+
+		void refresh() {
+			sampleList.getList().setSelectedSamples(method.getSelectedSamples());	
+			
+		}
+		
+		void setModel(int model){
+			method.setModel(model);
+		}
+		
+		void setThicknessSelect(boolean selected){
+			method.setThicknessSelect(selected);
+			refreshSamples();
+		}
+
+		private void refreshSamples() {
+			List<ConfiguredSample> csamples = new ArrayList<ConfiguredSample>();
+			for(ISample s : sampleList.getList().getSelectedSamplesInOrder()) {
+				ConfiguredSample cs = method.new ConfiguredSample(s);
+				cs.setColorSet(colorSetCombo.getSelectedColorSet());
+				csamples.add(cs);
+			}
+			method.setUseSamples(csamples);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			String action = e.getActionCommand();
+			if(ACTION_SAMPLE.equals(action)) {
+				refreshSamples();
+			}
+			else if(ACTION_COMBO.equals(action))
+			{
+				//update color set
+				if (colorSetCombo.getSelectedItem() != null)
+				{
+					method.setSingleColorSet(colorSetCombo.getSelectedColorSet());
+				}
+			}
+			
+		}
+
+		@Override
+		public void contentsChanged(ListDataEvent arg0) {
+			// TODO Auto-generated method stub
+			refreshSamples();
+		}
+
+		@Override
+		public void intervalAdded(ListDataEvent arg0) {
+			// TODO Auto-generated method stub
+			refreshSamples();
+		}
+
+		@Override
+		public void intervalRemoved(ListDataEvent arg0) {
+			// TODO Auto-generated method stub
+			refreshSamples();
+		}
+	}
 }

@@ -36,12 +36,14 @@ import org.pathvisio.desktop.visualization.VisualizationManager.VisualizationExc
  */
 public class ColorByLine extends AbstractVisualizationMethod {
 
-	static final Color DEFAULT_POSCOLOR = Color.GREEN;
+	static final Color DEFAULT_POSCOLOR = Color.BLUE;
 	static final Color DEFAULT_NEGCOLOR = Color.RED;
 	static final String DEFAULT_MINLINETHICKNESS = "1";
 	static final String DEFAULT_MAXLINETHICKNESS = "7";
 	static final String DEFAULT_MINDATAVALUE = "1";
 	static final String DEFAULT_MAXDATAVALUE = "10";
+	static final int BASIC_MODEL = 1;
+	static final int GRADIENT_MODEL = 2;
 
 	Color poscolor;
 	Color negcolor;
@@ -52,6 +54,8 @@ public class ColorByLine extends AbstractVisualizationMethod {
 	String maxdatavalue;
 
 	private List<ConfiguredSample> useSamples = new ArrayList<ConfiguredSample>();
+	private int drawModel;
+	private boolean thicknessSelect;
 
 	private final GexManager gexManager;
 	private final ColorSetManager csm;
@@ -60,8 +64,11 @@ public class ColorByLine extends AbstractVisualizationMethod {
 	public ColorByLine(GexManager gexManager, ColorSetManager csm) {
 		this.gexManager = gexManager;
 		this.csm = csm;
+		drawModel = BASIC_MODEL;
+		thicknessSelect = true;
 		setIsConfigurable(true);
-		setUseProvidedArea(true);
+		//The visualization of empty datanodes getting messed up bug fix by Ruizhou GUO
+		setUseProvidedArea(false);
 	}
 
 	@Override
@@ -146,40 +153,36 @@ public class ColorByLine extends AbstractVisualizationMethod {
 	void drawArea(final Line gp, Graphics g, Graphics2D g2d) {
 		int nr = useSamples.size();
 		g2d.setClip(null);
+		ConfiguredSample s = useSamples.get(nr-1);
+		Xref idc = new Xref(gp.getPathwayElement().getGeneID(), gp
+				.getPathwayElement().getDataSource());
+		CachedData cache = gexManager.getCachedData();
+		if (cache == null) {
+			return;
+		}
 
-		for (int i = 0; i < nr; i++)
+		if(s.getColorSet() == null) {
+			Logger.log.trace("No colorset for sample " + s);
+			return; //No ColorSet for this sample
+		}
+		if(cache.hasData(idc))
 		{
-			ConfiguredSample s = useSamples.get(i);
-			Xref idc = new Xref(gp.getPathwayElement().getGeneID(), gp
-					.getPathwayElement().getDataSource());
-			CachedData cache = gexManager.getCachedData();
-			if (cache == null) {
-				continue;
-			}
-
-			if(s.getColorSet() == null) {
-				Logger.log.trace("No colorset for sample " + s);
-				continue; //No ColorSet for this sample
-			}
-			if(cache.hasData(idc))
+			List<? extends IRow> data = cache.getData(idc);
+			if (data.size() > 0)
 			{
-				List<? extends IRow> data = cache.getData(idc);
-				if (data.size() > 0)
+				drawSample(s, data, gp, g2d);
+			}
+		}
+		else
+		{
+			cache.asyncGet(idc, new Callback()
+			{
+				@Override
+				public void callback()
 				{
-					drawSample(s, data, gp, g2d);
+					gp.markDirty();
 				}
-			}
-			else
-			{
-				cache.asyncGet(idc, new Callback()
-				{
-					@Override
-					public void callback()
-					{
-						gp.markDirty();
-					}
-				});
-			}
+			});
 		}
 	}
 
@@ -202,17 +205,31 @@ public class ColorByLine extends AbstractVisualizationMethod {
 		double datavalue = (Double) dataval.getSampleData(sample);
 
 		if (datavalue >= 0) {
-			g2d.setPaint(pc);
-			g2d.setColor(pc);
-			c = pc;
+			if (BASIC_MODEL == drawModel){
+				g2d.setPaint(pc);
+				g2d.setColor(pc);
+				c = pc;
+			} else if (GRADIENT_MODEL == drawModel)
+			{
+				c = rgb;
+			}
+			
 		} else {
-			g2d.setPaint(nc);
-			g2d.setColor(nc);
-			c = nc;
+			if (BASIC_MODEL == drawModel){
+				g2d.setPaint(nc);
+				g2d.setColor(nc);
+				c = nc;
+			} else if (GRADIENT_MODEL == drawModel){
+				c=rgb;
+			}
 			datavalue = datavalue * (-1);
 		}
 
-		float lt = setLineThickness((float) datavalue);
+		
+		float lt = 2;
+		if (thicknessSelect){
+			lt = setLineThickness((float) datavalue);
+		}
 
 		int ls = gp.getPathwayElement().getLineStyle();
 		if (ls == 0) {
@@ -264,6 +281,14 @@ public class ColorByLine extends AbstractVisualizationMethod {
 	void setUseSamples(List<ConfiguredSample> samples)
 	{
 		useSamples = samples;
+	}
+	
+	void setModel(int model){
+		drawModel = model;
+	}
+	
+	void setThicknessSelect(boolean select){
+		thicknessSelect = select;
 	}
 
 	/**

@@ -40,7 +40,27 @@ public class IntVizPlugin implements Plugin{
 		VisualizationMethodRegistry reg =
 			aDesktop.getVisualizationManager().getVisualizationMethodRegistry();
 		
+		//register multi-time method by Ruizhou GUO
+		reg.registerEdgeMethod(
+				MultiTimeByLine.class.toString(),
+				new VisualizationMethodProvider() {
+					public VisualizationMethod create() {
+						return new MultiTimeByLine(desktop.getGexManager(), desktop.getVisualizationManager().getColorSetManager());
+					}
+			}
+		);
 		
+		//register multi-flux method by Ruizhou GUO
+				reg.registerEdgeMethod(
+						MultiByLine.class.toString(),
+						new VisualizationMethodProvider() {
+							public VisualizationMethod create() {
+								return new MultiByLine(desktop.getGexManager(), desktop.getVisualizationManager().getColorSetManager());
+							}
+					}
+				);
+		
+		// put gradient method in colorbyline also by Ruizhou GUO
 		reg.registerEdgeMethod(
 				ColorByLine.class.toString(),
 				new VisualizationMethodProvider() {
