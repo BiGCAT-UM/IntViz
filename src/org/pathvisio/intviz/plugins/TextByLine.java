@@ -1,6 +1,6 @@
-// PathVisio,
+// IntViz Plugin for PathVisio,
 // a tool for data visualization and analysis using Biological Pathways
-// Copyright 2006-2011 BiGCaT Bioinformatics
+// Copyright 2006-2014 BiGCaT Bioinformatics
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,8 +69,8 @@ import com.jgoodies.forms.layout.FormLayout;
  * @author anwesha
  */
 public class TextByLine extends AbstractVisualizationMethod
- implements
-		ActionListener, ListDataListener {
+implements
+ActionListener, ListDataListener {
 	static final Font DEFAULT_FONT = new Font("Arial narrow", Font.PLAIN, 10);
 	static final int SPACING = 20;
 	static final String ACTION_SAMPLE = "sample";
@@ -93,7 +93,7 @@ public class TextByLine extends AbstractVisualizationMethod
 
 	@Override
 	public String getDescription() {
-		return "Display a numerical value next to an Edge(Interaction/Reaction)";
+		return "Display a numerical value next to an Interaction";
 	}
 
 	@Override
@@ -137,7 +137,7 @@ public class TextByLine extends AbstractVisualizationMethod
 			int w = 0, i = 0;
 			for(ISample s : useSamples) {
 				String str = getDataString(s, cache.getData(idc), SEP + "\n") +
- (++i == useSamples.size() ? "" : SEP);
+						(++i == useSamples.size() ? "" : SEP);
 				if (str.length() == 0) {
 					continue;
 				}
@@ -163,7 +163,7 @@ public class TextByLine extends AbstractVisualizationMethod
 				return null;
 
 			JPanel panel = new JPanel();
-			panel.setBorder(BorderFactory.createTitledBorder("Expression data"));
+			panel.setBorder(BorderFactory.createTitledBorder("Flux data"));
 			panel.setLayout(new GridBagLayout());
 			GridBagConstraints gbc = new GridBagConstraints();
 			gbc.gridy = -1;
@@ -269,7 +269,7 @@ public class TextByLine extends AbstractVisualizationMethod
 	public JPanel getConfigurationPanel() {
 		JPanel panel = new JPanel();
 		FormLayout layout = new FormLayout(
-"4dlu, pref, fill:pref:grow, 4dlu",
+				"4dlu, pref, fill:pref:grow, 4dlu",
 				"4dlu, pref, 4dlu, fill:pref:grow, 4dlu, pref, 4dlu");
 		panel.setLayout(layout);
 
@@ -298,7 +298,7 @@ public class TextByLine extends AbstractVisualizationMethod
 		} else if(ACTION_APPEARANCE.equals(action)) {
 			OkCancelDialog optionsDlg = new OkCancelDialog(
 					null, ACTION_APPEARANCE, (Component)e.getSource(), true, false
-);
+					);
 			optionsDlg.setDialogComponent(createAppearancePanel());
 			optionsDlg.pack();
 			optionsDlg.setVisible(true);
@@ -335,7 +335,7 @@ public class TextByLine extends AbstractVisualizationMethod
 
 		DefaultFormBuilder builder = new DefaultFormBuilder(
 				new FormLayout("pref, 4dlu, fill:pref:grow, 4dlu, pref", "")
-);
+				);
 		builder.setDefaultDialogBorder();
 		builder.append("Font: ", preview, font);
 		builder.nextLine();

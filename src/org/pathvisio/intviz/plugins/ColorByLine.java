@@ -67,7 +67,8 @@ public class ColorByLine extends AbstractVisualizationMethod {
 		drawModel = BASIC_MODEL;
 		thicknessSelect = true;
 		setIsConfigurable(true);
-		//The visualization of empty datanodes getting messed up bug fix by Ruizhou GUO
+		// The visualization of empty datanodes getting messed up bug fix by
+		// Ruizhou GUO
 		setUseProvidedArea(false);
 	}
 
@@ -153,28 +154,24 @@ public class ColorByLine extends AbstractVisualizationMethod {
 	void drawArea(final Line gp, Graphics g, Graphics2D g2d) {
 		int nr = useSamples.size();
 		g2d.setClip(null);
-		ConfiguredSample s = useSamples.get(nr-1);
+		ConfiguredSample s = useSamples.get(nr - 1);
 		Xref idc = new Xref(gp.getPathwayElement().getGeneID(), gp
 				.getPathwayElement().getDataSource());
 		CachedData cache = gexManager.getCachedData();
-		if (cache == null) {
+		if (cache == null)
 			return;
-		}
 
-		if(s.getColorSet() == null) {
+		if (s.getColorSet() == null) {
 			Logger.log.trace("No colorset for sample " + s);
-			return; //No ColorSet for this sample
+			return; // No ColorSet for this sample
 		}
-		if(cache.hasData(idc))
+		if (cache.hasData(idc))
 		{
 			List<? extends IRow> data = cache.getData(idc);
-			if (data.size() > 0)
-			{
+			if (data.size() > 0) {
 				drawSample(s, data, gp, g2d);
 			}
-		}
-		else
-		{
+		} else {
 			cache.asyncGet(idc, new Callback()
 			{
 				@Override
@@ -205,29 +202,27 @@ public class ColorByLine extends AbstractVisualizationMethod {
 		double datavalue = (Double) dataval.getSampleData(sample);
 
 		if (datavalue >= 0) {
-			if (BASIC_MODEL == drawModel){
+			if (BASIC_MODEL == drawModel) {
 				g2d.setPaint(pc);
 				g2d.setColor(pc);
 				c = pc;
-			} else if (GRADIENT_MODEL == drawModel)
-			{
+			} else if (GRADIENT_MODEL == drawModel) {
 				c = rgb;
 			}
-			
+
 		} else {
-			if (BASIC_MODEL == drawModel){
+			if (BASIC_MODEL == drawModel) {
 				g2d.setPaint(nc);
 				g2d.setColor(nc);
 				c = nc;
-			} else if (GRADIENT_MODEL == drawModel){
-				c=rgb;
+			} else if (GRADIENT_MODEL == drawModel) {
+				c = rgb;
 			}
 			datavalue = datavalue * (-1);
 		}
 
-		
 		float lt = 2;
-		if (thicknessSelect){
+		if (thicknessSelect) {
 			lt = setLineThickness((float) datavalue);
 		}
 
@@ -282,12 +277,12 @@ public class ColorByLine extends AbstractVisualizationMethod {
 	{
 		useSamples = samples;
 	}
-	
-	void setModel(int model){
+
+	void setModel(int model) {
 		drawModel = model;
 	}
-	
-	void setThicknessSelect(boolean select){
+
+	void setThicknessSelect(boolean select) {
 		thicknessSelect = select;
 	}
 

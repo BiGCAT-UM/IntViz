@@ -1,6 +1,6 @@
-// PathVisio,
+// IntViz Plugin for PathVisio,
 // a tool for data visualization and analysis using Biological Pathways
-// Copyright 2006-2011 BiGCaT Bioinformatics
+// Copyright 2006-2014 BiGCaT Bioinformatics
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,6 +48,8 @@ import com.jgoodies.forms.layout.FormLayout;
 
 /**
  * Visualization method to put a label on a Interaction
+ * 
+ * @author anwesha
  */
 public class LineLabel extends AbstractVisualizationMethod implements ActionListener {
 	static final int SPACING = 5;
@@ -68,7 +70,7 @@ public class LineLabel extends AbstractVisualizationMethod implements ActionList
 
 	@Override
 	public String getDescription() {
-		return "Draws a label for the edge [Interaction/Reaction]";
+		return "Draws a label for the interaction";
 	}
 
 	@Override

@@ -64,10 +64,10 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	static final String ACTION_BASIC = "Basic";
-	static final String ACTION_GRADIENT = "Gradient";
+	static final String ACTION_GRADIENT = "Advanced";
 	static final String ACTION_SAMPLE = "sample";
-	static final String ACTION_OPTIONS = "options";
-	static final String ACTION_COMBO = "Colorset";	
+	static final String ACTION_OPTIONS = "Basic Visualization Options";
+	static final String ACTION_COMBO = "Colorset";
 	static final String ACTION_LINETTHICKNESS = "Thickness";
 	static final int BASIC_MODEL = 1;
 	static final int GRADIENT_MODEL = 2;
@@ -84,35 +84,33 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 	private final CardLayout cardLayout;
 	private final JPanel settings;
 	private final ColorSetManager csm;
-	private JCheckBox LineCheckbox;
+	private final JCheckBox LineCheckbox;
 	private int model;
-	JButton options = new JButton("Set Visualization");
-
+	JButton options = new JButton("Edit Basic Visualization");
 
 	public ColorByLinePanel(ColorByLine method, ColorSetManager csm) {
 		this.method = method;
 		this.csm = csm;
 
 		model = BASIC_MODEL;
-		
+
 		setLayout(new FormLayout(
 				"4dlu, pref, 4dlu, pref, fill:pref:grow, 4dlu",
-				"4dlu, pref, 4dlu, fill:pref:grow, 4dlu"
-				));
+				"4dlu, pref, 4dlu, fill:pref:grow, 4dlu"));
 
 		ButtonGroup buttons = new ButtonGroup();
 		JRadioButton rbBasic = new JRadioButton(ACTION_BASIC);
 		rbBasic.setActionCommand(ACTION_BASIC);
 		rbBasic.addActionListener(this);
 		buttons.add(rbBasic);
-		
-		//add the gradient method by ruizhou guo
+
+		// add the gradient method by ruizhou guo
 		JRadioButton rgBasic = new JRadioButton(ACTION_GRADIENT);
 		rgBasic.setActionCommand(ACTION_GRADIENT);
 		rgBasic.addActionListener(this);
 		buttons.add(rgBasic);
-		
-		//select if use line thickness method
+
+		// select if use line thickness method
 		LineCheckbox = new JCheckBox(ACTION_LINETTHICKNESS);
 		LineCheckbox.setActionCommand(ACTION_LINETTHICKNESS);
 		LineCheckbox.addActionListener(this);
@@ -149,19 +147,16 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 			basic.setModel(BASIC_MODEL);
 			basic.refreshSamples();
 			cardLayout.show(settings, action);
-		} else if (ACTION_GRADIENT.equals(action)) 
-		{
+		} else if (ACTION_GRADIENT.equals(action)) {
 			model = GRADIENT_MODEL;
 			gradient.refresh();
 			gradient.setModel(GRADIENT_MODEL);
 			gradient.refreshSamples();
 			cardLayout.show(settings, action);
-		} else if (ACTION_LINETTHICKNESS.equals(action)) 
-		{
-			if (BASIC_MODEL == model){
+		} else if (ACTION_LINETTHICKNESS.equals(action)) {
+			if (BASIC_MODEL == model) {
 				basic.setThicknessSelect(LineCheckbox.isSelected());
-			} else if (GRADIENT_MODEL == model)
-			{
+			} else if (GRADIENT_MODEL == model) {
 				gradient.setThicknessSelect(LineCheckbox.isSelected());
 			}
 		}
@@ -176,16 +171,15 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		ColorSetCombo colorSetCombo;
 
 		public Basic() {
-			setLayout(new FormLayout(
-					"4dlu, pref, 2dlu, fill:pref:grow, 4dlu",
-					"4dlu, pref:grow, 4dlu, pref, 4dlu"
-					));
+			setLayout(new FormLayout("4dlu, pref, 2dlu, fill:pref:grow, 4dlu",
+					"4dlu, pref:grow, 4dlu, pref, 4dlu"));
 
 			List<ISample> selected = method.getSelectedSamples();
-			for (ISample s : selected) if (s == null) throw new NullPointerException();
-			sampleList = new SortSampleCheckList(
-					selected, method.getGexManager()
-					);
+			for (ISample s : selected)
+				if (s == null)
+					throw new NullPointerException();
+			sampleList = new SortSampleCheckList(selected,
+					method.getGexManager());
 			sampleList.getList().addActionListener(this);
 			sampleList.getList().setActionCommand(ACTION_SAMPLE);
 			sampleList.getList().getModel().addListDataListener(this);
@@ -195,27 +189,28 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 
 			CellConstraints cc = new CellConstraints();
 			add(sampleList, cc.xyw(2, 2, 3));
-			add(options, cc.xy(2, 4));		
+			add(options, cc.xy(2, 4));
 			refresh();
 
 		}
 
 		void refresh() {
-			sampleList.getList().setSelectedSamples(method.getSelectedSamples());
+			sampleList.getList()
+			.setSelectedSamples(method.getSelectedSamples());
 		}
-		
-		void setModel(int model){
+
+		void setModel(int model) {
 			method.setModel(model);
 		}
-		
-		void setThicknessSelect(boolean selected){
+
+		void setThicknessSelect(boolean selected) {
 			method.setThicknessSelect(selected);
 			refreshSamples();
 		}
 
 		private void refreshSamples() {
 			List<ConfiguredSample> csamples = new ArrayList<ConfiguredSample>();
-			for(ISample s : sampleList.getList().getSelectedSamplesInOrder()) {
+			for (ISample s : sampleList.getList().getSelectedSamplesInOrder()) {
 				ConfiguredSample cs = method.new ConfiguredSample(s);
 				cs.setColorSet(method.getSingleColorSet());
 				csamples.add(cs);
@@ -226,14 +221,12 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String action = e.getActionCommand();
-			if(ACTION_SAMPLE.equals(action)) {
+			if (ACTION_SAMPLE.equals(action)) {
 				refreshSamples();
 				method.setSingleColorSet(new ColorSet(csm));
-			}
-			else if (ACTION_OPTIONS.equals(action)){
-				OkCancelDialog optionsDlg = new OkCancelDialog(
-						null, ACTION_OPTIONS, (Component)e.getSource(), true, false
-						);
+			} else if (ACTION_OPTIONS.equals(action)) {
+				OkCancelDialog optionsDlg = new OkCancelDialog(null,
+						ACTION_OPTIONS, (Component) e.getSource(), true, false);
 				optionsDlg.setDialogComponent(createAppearancePanel());
 				optionsDlg.pack();
 				optionsDlg.setVisible(true);
@@ -242,19 +235,20 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 
 		/**
 		 * Creates subpanel to set colours for positive and negative data and
-		 * minimum and maximum linthickness to create a line thickness gradient
+		 * minimum and maximum linethickness to create a line thickness gradient
 		 * 
 		 * @return
 		 */
-		public JPanel createAppearancePanel(){
+		public JPanel createAppearancePanel() {
 
-			final JLabel colorLabel = new JLabel("Color of line : ");
+			final JLabel colorLabel = new JLabel("Color of interaction : ");
 			final JLabel poscolorLabel = new JLabel("Positive data");
 			final JLabel negcolorLabel = new JLabel("Negative data");
 			final JLabel thicknessLabel = new JLabel("Thickness Gradient : ");
 			final JLabel minthicknesslabel = new JLabel("Minimum thickness");
 			final JLabel maxthicknesslabel = new JLabel("Maximum thickness");
-			final String[] gradientStrings = {"1","2","3","4","5","6","7","8","9","10"};
+			final String[] gradientStrings = { "1", "2", "3", "4", "5", "6",
+					"7", "8", "9", "10" };
 
 			final JButton poscolorButton = new JButton("...");
 			final JButton negcolorButton = new JButton("...");
@@ -271,8 +265,8 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 			 * Assigns default colours and values
 			 */
 			poscolorButton.setOpaque(true);
-			poscolorButton.setForeground(Color.GREEN);
-			poscolorButton.setBackground(Color.GREEN);
+			poscolorButton.setForeground(Color.BLUE);
+			poscolorButton.setBackground(Color.BLUE);
 			negcolorButton.setOpaque(true);
 			negcolorButton.setForeground(Color.RED);
 			negcolorButton.setBackground(Color.RED);
@@ -290,7 +284,7 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					Color posColor = JColorChooser.showDialog(poscolorButton,
-							"Choose", Color.GREEN);
+							"Choose", Color.BLUE);
 					poscolorButton.setForeground(posColor);
 					poscolorButton.setBackground(posColor);
 					method.setPosColor(posColor);
@@ -375,7 +369,11 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		}
 	}
 
-	/** Panel for editing GradientByLine by Ruizhou GUO*/
+	/**
+	 * Panel for editing GradientByLine by Ruizhou GUO
+	 * 
+	 * @author rz-guo
+	 */
 	class Gradient extends JPanel implements ActionListener, ListDataListener {
 		private static final long serialVersionUID = 1L;
 
@@ -384,25 +382,25 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		ColorSetCombo colorSetCombo;
 
 		public Gradient() {
-			setLayout(new FormLayout(
-					"4dlu, pref, 2dlu, fill:pref:grow, 4dlu",
-					"4dlu, pref:grow, 4dlu, pref, 4dlu"
-					));
+			setLayout(new FormLayout("4dlu, pref, 2dlu, fill:pref:grow, 4dlu",
+					"4dlu, pref:grow, 4dlu, pref, 4dlu"));
 
 			List<ISample> selected = method.getSelectedSamples();
-			for (ISample s : selected) if (s == null) throw new NullPointerException();
-			sampleList = new SortSampleCheckList(
-					selected, method.getGexManager()
-					);
+			for (ISample s : selected)
+				if (s == null)
+					throw new NullPointerException();
+			sampleList = new SortSampleCheckList(selected,
+					method.getGexManager());
 			sampleList.getList().addActionListener(this);
 			sampleList.getList().setActionCommand(ACTION_SAMPLE);
 			sampleList.getList().getModel().addListDataListener(this);
 
-			ColorSetChooser csChooser = new ColorSetChooser(csm, method.getGexManager());
+			ColorSetChooser csChooser = new ColorSetChooser(csm,
+					method.getGexManager());
 			colorSetCombo = csChooser.getColorSetCombo();
 			colorSetCombo.setActionCommand(ACTION_COMBO);
 			colorSetCombo.addActionListener(this);
-			
+
 			CellConstraints cc = new CellConstraints();
 			add(sampleList, cc.xyw(2, 2, 3));
 			add(csChooser, cc.xyw(2, 4, 3));
@@ -411,22 +409,23 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		}
 
 		void refresh() {
-			sampleList.getList().setSelectedSamples(method.getSelectedSamples());	
-			
+			sampleList.getList()
+			.setSelectedSamples(method.getSelectedSamples());
+
 		}
-		
-		void setModel(int model){
+
+		void setModel(int model) {
 			method.setModel(model);
 		}
-		
-		void setThicknessSelect(boolean selected){
+
+		void setThicknessSelect(boolean selected) {
 			method.setThicknessSelect(selected);
 			refreshSamples();
 		}
 
 		private void refreshSamples() {
 			List<ConfiguredSample> csamples = new ArrayList<ConfiguredSample>();
-			for(ISample s : sampleList.getList().getSelectedSamplesInOrder()) {
+			for (ISample s : sampleList.getList().getSelectedSamplesInOrder()) {
 				ConfiguredSample cs = method.new ConfiguredSample(s);
 				cs.setColorSet(colorSetCombo.getSelectedColorSet());
 				csamples.add(cs);
@@ -437,18 +436,16 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			String action = e.getActionCommand();
-			if(ACTION_SAMPLE.equals(action)) {
+			if (ACTION_SAMPLE.equals(action)) {
 				refreshSamples();
-			}
-			else if(ACTION_COMBO.equals(action))
-			{
-				//update color set
-				if (colorSetCombo.getSelectedItem() != null)
-				{
-					method.setSingleColorSet(colorSetCombo.getSelectedColorSet());
+			} else if (ACTION_COMBO.equals(action)) {
+				// update color set
+				if (colorSetCombo.getSelectedItem() != null) {
+					method.setSingleColorSet(colorSetCombo
+							.getSelectedColorSet());
 				}
 			}
-			
+
 		}
 
 		@Override

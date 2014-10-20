@@ -1,3 +1,25 @@
+// IntViz Plugin for PathVisio,
+// a tool for data visualization and analysis using Biological Pathways
+// Copyright 2006-2014 BiGCaT Bioinformatics
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+
+/**
+ * 
+ * @author rz-guo
+ * 
+ */
 package org.pathvisio.intviz.plugins;
 
 import java.awt.BasicStroke;
@@ -9,12 +31,10 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
@@ -44,23 +64,24 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 
 /**
- * Visualization method for coloring line:
- * create a slider to color the line base on each column of data
+ * Visualization method for coloring line: create a slider to color the line
+ * base on each column of data
+ * 
  * @author Ruizhou GUO
  */
 
-public class MultiTimeByLine extends AbstractVisualizationMethod implements ActionListener,ChangeListener {
+public class MultiTimeByLine extends AbstractVisualizationMethod implements
+ActionListener, ChangeListener {
 
 	static final String DEFAULT_MINDATAVALUE = "0";
 	static final String DEFAULT_MAXDATAVALUE = "10";
 	static final String DEFAULT_MINLINETHICKNESS = "1";
 	static final String DEFAULT_MAXLINETHICKNESS = "7";
-	static final String ACTION_GRADIENT = "Gradient";
+	// static final String ACTION_GRADIENT = "Gradient";
 	static final String ACTION_COMBO = "Colorset";
 	static final String ACTION_CHANGE_LINE = "Change";
 	static final String ACTION_LINETTHICKNESS = "Thickness";
 	static final String DEFAULT_LABEL = "The selected time is :";
-
 
 	String mindatavalue;
 	String maxdatavalue;
@@ -75,18 +96,18 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	private JTextField LineMinTF;
 	private JCheckBox LineCheckbox;
 	private JButton changeLineButton;
-	Color[] colors = {
-			Color.white, Color.lightGray, Color.gray, Color.darkGray,
-			Color.black, Color.red, Color.pink, Color.orange,
-			Color.yellow, Color.green, Color.magenta, Color.cyan, Color.blue
-	};
+	Color[] colors = { Color.white, Color.lightGray, Color.gray,
+			Color.darkGray, Color.black, Color.red, Color.pink, Color.orange,
+			Color.yellow, Color.green, Color.magenta, Color.cyan, Color.blue };
 
 	private final GexManager gexManager;
 	private final ColorSetManager csm;
-	GexManager getGexManager() { return gexManager; }
 
-	public MultiTimeByLine(GexManager gexManager,
-			ColorSetManager csm) {
+	GexManager getGexManager() {
+		return gexManager;
+	}
+
+	public MultiTimeByLine(GexManager gexManager, ColorSetManager csm) {
 		this.gexManager = gexManager;
 		this.csm = csm;
 		setIsConfigurable(true);
@@ -98,16 +119,15 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 		JPanel panel = new JPanel();
 		FormLayout layout = new FormLayout(
 				"4dlu, pref, 4dlu, pref, fill:pref:grow, 4dlu",
-				"4dlu, pref, 4dlu, pref, pref,4dlu,pref,4dlu,pref,pref,pref"
-				);
+				"4dlu, pref, 4dlu, pref, pref,4dlu,pref,4dlu,pref,pref,pref");
 		panel.setLayout(layout);
 
-		JRadioButton radioId = new JRadioButton(ACTION_GRADIENT);
-		radioId.setActionCommand(ACTION_GRADIENT);
-		radioId.addActionListener(this);
+		// JRadioButton radioId = new JRadioButton(ACTION_GRADIENT);
+		// radioId.setActionCommand(ACTION_GRADIENT);
+		// radioId.addActionListener(this);
 
-		ButtonGroup group = new ButtonGroup();
-		group.add(radioId);
+		// ButtonGroup group = new ButtonGroup();
+		// group.add(radioId);
 
 		LineCheckbox = new JCheckBox(ACTION_LINETTHICKNESS);
 		LineCheckbox.setActionCommand(ACTION_LINETTHICKNESS);
@@ -116,10 +136,10 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 
 		SortSampleCheckList sampleList;
 		List<ISample> selected = getSelectedSamples();
-		for (ISample s : selected) if (s == null) throw new NullPointerException();
-		sampleList = new SortSampleCheckList(
-				selected, gexManager
-				);
+		for (ISample s : selected)
+			if (s == null)
+				throw new NullPointerException();
+		sampleList = new SortSampleCheckList(selected, gexManager);
 
 		LineMaxTF = new JTextField(DEFAULT_MAXLINETHICKNESS);
 		LineMinTF = new JTextField(DEFAULT_MINLINETHICKNESS);
@@ -132,63 +152,64 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 		colorSetCombo.setActionCommand(ACTION_COMBO);
 		colorSetCombo.addActionListener(this);
 
-		//get the length of slider
+		// get the length of slider
 		useSamples = new ArrayList<ConfiguredSample>();
-		for(ISample s : sampleList.getList().getSamplesInOrder()) {
+		for (ISample s : sampleList.getList().getSamplesInOrder()) {
 			ConfiguredSample cs = new ConfiguredSample(s);
 
 			cs.setColorSet(colorSetCombo.getSelectedColorSet());
 			useSamples.add(cs);
 		}
 		int sliderlength = useSamples.size();
-		if (sliderlength != 0){
-			MulTslider=new JSlider(0,sliderlength - 1);
+		if (sliderlength != 0) {
+			MulTslider = new JSlider(0, sliderlength - 1);
 		} else {
-			MulTslider=new JSlider(0,0);
+			MulTslider = new JSlider(0, 0);
 		}
 		MulTslider.addChangeListener(this);
-		//default select the first one of data
+		// default select the first one of data
 		seletedSlider = 0;
-		SliderLabel = new JLabel(DEFAULT_LABEL+useSamples.get(seletedSlider).getSample().getName());
+		SliderLabel = new JLabel(DEFAULT_LABEL
+				+ useSamples.get(seletedSlider).getSample().getName());
 		MulTslider.setValue(seletedSlider);
 
 		CellConstraints cc = new CellConstraints();
-		panel.add(radioId, cc.xy(2, 2));
-		panel.add(LineCheckbox, cc.xy(4, 2));
-		panel.add(SliderLabel, cc.xy(2,4));
+		// panel.add(radioId, cc.xy(2, 2));
+		panel.add(LineCheckbox, cc.xy(2, 2));
+		panel.add(SliderLabel, cc.xy(2, 4));
 		panel.add(MulTslider, cc.xyw(2, 5, 4));
 		panel.add(csChooser, cc.xyw(2, 7, 4));
-		panel.add(new JLabel("Line minimun thickess:"),cc.xy(2,9));
-		panel.add(LineMinTF,cc.xy(4,9));
-		panel.add(new JLabel("Line maximum thickess:"),cc.xy(2,10));
-		panel.add(LineMaxTF,cc.xy(4,10));
-		panel.add(changeLineButton,cc.xy(2, 11));
-		radioId.setSelected(true);
+		panel.add(new JLabel("Line minimum thickess:"), cc.xy(2, 9));
+		panel.add(LineMinTF, cc.xy(4, 9));
+		panel.add(new JLabel("Line maximum thickess:"), cc.xy(2, 10));
+		panel.add(LineMaxTF, cc.xy(4, 10));
+		panel.add(changeLineButton, cc.xy(2, 11));
+		// radioId.setSelected(true);
 
 		return panel;
 	}
 
 	@Override
 	public int defaultDrawingOrder() {
-		// TODO Auto-generated method stub
-		return 0;
+		// a high drawing order, so that is comes on top of opaque methods.
+		return 3;
 	}
 
 	@Override
 	public String getDescription() {
-		return "Multi-time visulization with slider";
+		return "Dynamic data visualization on interactions";
 	}
 
 	@Override
 	public String getName() {
-		return "Time series data";
+		return "Multiple data columns using slider";
 	}
 
 	@Override
 	public void visualizeOnDrawing(Graphics g, Graphics2D g2d) {
-		if(g instanceof Line)
-		{
-			if(useSamples.size() == 0) return; //Nothing to draw
+		if (g instanceof Line) {
+			if (useSamples.size() == 0)
+				return; // Nothing to draw
 			final Line gp = (Line) g;
 
 			g2d.setClip(null);
@@ -202,21 +223,15 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 			if (cache == null)
 				return;
 
-			if(cache.hasData(idc))
-			{
+			if (cache.hasData(idc)) {
 				List<? extends IRow> data = cache.getData(idc);
-				if (data.size() > 0)
-				{
+				if (data.size() > 0) {
 					drawSample(s, data, gp, g2d);
 				}
-			}
-			else
-			{
-				cache.asyncGet(idc, new Callback()
-				{
+			} else {
+				cache.asyncGet(idc, new Callback() {
 					@Override
-					public void callback()
-					{
+					public void callback() {
 						gp.markDirty();
 					}
 				});
@@ -236,19 +251,20 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 		drawColoredLine(gp, rgb, g2d, dataval, sample);
 	}
 
-	private void drawColoredLine(Line gp, Color rgb, Graphics2D g2d, IRow dataval, ISample sample){
+	private void drawColoredLine(Line gp, Color rgb, Graphics2D g2d,
+			IRow dataval, ISample sample) {
 		g2d.setPaint(rgb);
 		g2d.setColor(rgb);
 
 		double datavalue = (Double) dataval.getSampleData(sample);
 
-		if (datavalue < 0){
+		if (datavalue < 0) {
 			datavalue = (-1) * datavalue;
 		}
 
-		//default line thickness
+		// default line thickness
 		float lt = 2;
-		if (LineCheckbox.isSelected()){
+		if (LineCheckbox.isSelected()) {
 			lt = setLineThickness((float) datavalue);
 		}
 		int ls = gp.getPathwayElement().getLineStyle();
@@ -272,7 +288,6 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 		// // g2d.drawLine(sx, sy, ex, ey);
 		// g2d.draw(ml.getRBounds());
 
-
 		ArrowShape[] heads = gp.getVHeadsAdjusted();
 		ArrowShape hs = heads[0];
 		ArrowShape he = heads[1];
@@ -281,28 +296,26 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 		drawHead(g2d, hs, lt, rgb);
 	}
 
-	protected void drawHead(Graphics2D g2d, ArrowShape arrow, float lt, Color rgb)
-	{
-		if(arrow != null)
-		{
+	protected void drawHead(Graphics2D g2d, ArrowShape arrow, float lt,
+			Color rgb) {
+		if (arrow != null) {
 			// reset stroked line to solid, but use given thickness
 			g2d.setStroke(new BasicStroke(lt));
 
-			switch (arrow.getFillType())
-			{
+			switch (arrow.getFillType()) {
 			case OPEN:
-				g2d.setPaint (Color.WHITE);
-				g2d.setColor (rgb);
-				g2d.draw (arrow.getShape());
+				g2d.setPaint(Color.WHITE);
+				g2d.setColor(rgb);
+				g2d.draw(arrow.getShape());
 				break;
 			case CLOSED:
-				g2d.setPaint (rgb);
-				g2d.fill (arrow.getShape());
-				g2d.draw (arrow.getShape());
+				g2d.setPaint(rgb);
+				g2d.fill(arrow.getShape());
+				g2d.draw(arrow.getShape());
 				break;
 			case WIRE:
-				g2d.setColor (rgb);
-				g2d.draw (arrow.getShape());
+				g2d.setColor(rgb);
+				g2d.draw(arrow.getShape());
 				break;
 			default:
 				assert (false);
@@ -311,7 +324,7 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	}
 
 	protected void setMinData(String minD) {
-		if (minD !=null ){
+		if (minD != null) {
 			mindatavalue = minD;
 			modified();
 		}
@@ -329,7 +342,7 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	}
 
 	protected void setMaxData(String maxD) {
-		if (maxD !=null ){
+		if (maxD != null) {
 			maxdatavalue = maxD;
 			modified();
 		}
@@ -347,7 +360,7 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	}
 
 	protected void setMinThickness(String minT) {
-		if (minT !=null ){
+		if (minT != null) {
 			minlinethickness = minT;
 			modified();
 		}
@@ -355,16 +368,18 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	}
 
 	private String getMinThickness() {
-		String minT = minlinethickness == null ? DEFAULT_MINLINETHICKNESS : minlinethickness;
-		VPathway vp = getVisualization().getManager().getEngine().getActiveVPathway();
-		if(vp != null) {
+		String minT = minlinethickness == null ? DEFAULT_MINLINETHICKNESS
+				: minlinethickness;
+		VPathway vp = getVisualization().getManager().getEngine()
+				.getActiveVPathway();
+		if (vp != null) {
 			minT = new String(minT);
 		}
 		return minT;
 	}
 
 	protected void setMaxThickness(String maxT) {
-		if (maxT !=null ){
+		if (maxT != null) {
 			maxlinethickness = maxT;
 			modified();
 		}
@@ -372,9 +387,11 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	}
 
 	private String getMaxThickness() {
-		String maxT = maxlinethickness == null ? DEFAULT_MAXLINETHICKNESS : maxlinethickness;
-		VPathway vp = getVisualization().getManager().getEngine().getActiveVPathway();
-		if(vp != null) {
+		String maxT = maxlinethickness == null ? DEFAULT_MAXLINETHICKNESS
+				: maxlinethickness;
+		VPathway vp = getVisualization().getManager().getEngine()
+				.getActiveVPathway();
+		if (vp != null) {
 			maxT = new String(maxT);
 		}
 		return maxT;
@@ -414,8 +431,9 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	public void stateChanged(ChangeEvent arg0) {
 		// TODO Auto-generated method stub
 		seletedSlider = MulTslider.getValue();
-		if (useSamples.size() != 0){
-			SliderLabel.setText(DEFAULT_LABEL+useSamples.get(seletedSlider).getSample().getName());
+		if (useSamples.size() != 0) {
+			SliderLabel.setText(DEFAULT_LABEL
+					+ useSamples.get(seletedSlider).getSample().getName());
 		}
 		modified();
 	}
@@ -424,20 +442,16 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		String action = e.getActionCommand();
-		if(ACTION_COMBO.equals(action))
-		{
-			//update color set
-			if (colorSetCombo.getSelectedItem() != null)
-			{
+		if (ACTION_COMBO.equals(action)) {
+			// update color set
+			if (colorSetCombo.getSelectedItem() != null) {
 				setSingleColorSet(colorSetCombo.getSelectedColorSet());
 			}
-		}
-		else if(ACTION_CHANGE_LINE.equals(action))
-		{
-			//update bar width and height
+		} else if (ACTION_CHANGE_LINE.equals(action)) {
+			// update bar width and height
 			try {
 				int mid = Integer.parseInt(LineMaxTF.getText());
-				if (mid > 0){
+				if (mid > 0) {
 					setMaxThickness(LineMaxTF.getText());
 				}
 			} catch (NumberFormatException ne) {
@@ -446,22 +460,20 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 
 			try {
 				int mid = Integer.parseInt(LineMinTF.getText());
-				if (mid > 0){
+				if (mid > 0) {
 					setMinThickness(LineMinTF.getText());
 				}
 			} catch (NumberFormatException ne) {
 				LineMinTF.setText(getMinThickness());
 			}
-		} else if (ACTION_LINETTHICKNESS.equals(action))
-		{
-			if (LineCheckbox.isSelected()){
-				//use line thickness method
+		} else if (ACTION_LINETTHICKNESS.equals(action)) {
+			if (LineCheckbox.isSelected()) {
+				// use line thickness method
 				LineMaxTF.setEnabled(true);
 				LineMinTF.setEnabled(true);
 				changeLineButton.setEnabled(true);
-			} else
-			{
-				//do not use line thickness method
+			} else {
+				// do not use line thickness method
 				LineMaxTF.setEnabled(false);
 				LineMinTF.setEnabled(false);
 				changeLineButton.setEnabled(false);
@@ -474,7 +486,7 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	 * Set a single colorset for all samples.
 	 */
 	public void setSingleColorSet(ColorSet cs) {
-		for(ConfiguredSample s : useSamples) {
+		for (ConfiguredSample s : useSamples) {
 			s.setColorSet(cs);
 		}
 	}
@@ -482,25 +494,23 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 	public List<ISample> getSelectedSamples() {
 		List<ISample> samples = new ArrayList<ISample>();
 
-		for(ConfiguredSample cs : useSamples)
-		{
+		for (ConfiguredSample cs : useSamples) {
 			samples.add(cs.getSample());
 		}
 		return samples;
 	}
 
 	/**
-	 * Get the single colorset that is used for all
-	 * samples. Returns null when different colorsets are
-	 * used.
+	 * Get the single colorset that is used for all samples. Returns null when
+	 * different colorsets are used.
 	 */
 	public ColorSet getSingleColorSet() {
 		ColorSet cs = null;
-		for(ConfiguredSample s : useSamples) {
-			if(cs == null) {
+		for (ConfiguredSample s : useSamples) {
+			if (cs == null) {
 				cs = s.getColorSet();
 			} else {
-				if(cs != s.getColorSet())
+				if (cs != s.getColorSet())
 					return null;
 			}
 		}
@@ -552,7 +562,8 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 			}
 
 			if (sample == null)
-				throw new VisualizationException("Couldn't find Sample with id " + id);
+				throw new VisualizationException(
+						"Couldn't find Sample with id " + id);
 
 			setColorSet(getVisualization().getManager().getColorSetManager()
 					.getColorSet(csn));
@@ -569,7 +580,6 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 				throw new NullPointerException();
 			sample = s;
 		}
-
 
 		/**
 		 * Create a configured sample from the information in the given XML
@@ -594,6 +604,7 @@ public class MultiTimeByLine extends AbstractVisualizationMethod implements Acti
 
 		/**
 		 * Get the color-set to use for visualization of this sample
+		 * 
 		 * @return the color-set
 		 */
 		protected ColorSet getColorSet() {

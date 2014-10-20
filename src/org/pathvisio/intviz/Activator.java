@@ -1,4 +1,4 @@
-// PathVisio,
+// IntViz Plugin for PathVisio,
 // a tool for data visualization and analysis using Biological Pathways
 // Copyright 2006-2011 BiGCaT Bioinformatics
 //
