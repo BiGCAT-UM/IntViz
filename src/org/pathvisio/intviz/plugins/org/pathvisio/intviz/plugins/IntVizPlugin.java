@@ -66,18 +66,28 @@ public class IntVizPlugin implements Plugin{
 					}
 				}
 				);
-
+		
+//		reg.registerEdgeMethod(
+//				ThicknessByLine.class.toString(),
+//				new VisualizationMethodProvider() {
+//					@Override
+//					public VisualizationMethod create() {
+//						return new ThicknessByLine(desktop.getGexManager(), desktop.getVisualizationManager().getColorSetManager());
+//					}
+//				}
+//				);
+		
 		/**
 		 * @author rz-guo
 		 */
-		reg.registerEdgeMethod(MultiByLine.class.toString(),
-				new VisualizationMethodProvider() {
-			@Override
-			public VisualizationMethod create() {
-				return new MultiByLine(desktop.getGexManager(), desktop
-						.getVisualizationManager().getColorSetManager());
-			}
-		});
+//		reg.registerEdgeMethod(MultiByLine.class.toString(),
+//				new VisualizationMethodProvider() {
+//			@Override
+//			public VisualizationMethod create() {
+//				return new MultiByLine(desktop.getGexManager(), desktop
+//						.getVisualizationManager().getColorSetManager());
+//			}
+//		});
 
 		/**
 		 * @author rz-guo

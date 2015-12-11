@@ -120,6 +120,7 @@ public class ColorByLinePanel extends JPanel implements ActionListener {
 		add(rbBasic, cc.xy(2, 2));
 		add(rgBasic, cc.xy(4, 2));
 		add(LineCheckbox, cc.xy(5, 2));
+		add(new JLabel("Select 1 sample only"), cc.xy(6, 2));
 
 		settings = new JPanel();
 		settings.setBorder(BorderFactory.createEtchedBorder());

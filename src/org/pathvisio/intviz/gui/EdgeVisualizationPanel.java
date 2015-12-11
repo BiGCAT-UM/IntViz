@@ -19,6 +19,7 @@ package org.pathvisio.intviz.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -157,8 +158,11 @@ public class EdgeVisualizationPanel extends JPanel implements ActionListener {
 				FormLayout layout = new FormLayout("fill:pref:grow");
 				DefaultFormBuilder builder = new DefaultFormBuilder(layout,
 						methods);
-				for (String name : visMgr.getVisualizationMethodRegistry()
-						.getRegisteredEdgeMethods()) {
+				
+				String[] orderedEdgeMethods = orderEdgeMethods(visMgr.getVisualizationMethodRegistry()
+						.getRegisteredEdgeMethods());
+				System.out.println(orderedEdgeMethods.toString());
+				for (String name : orderedEdgeMethods) {
 					EdgeMethodPanel mp = new EdgeMethodPanel(v, name);
 					builder.append(mp);
 					builder.nextLine();
@@ -171,4 +175,28 @@ public class EdgeVisualizationPanel extends JPanel implements ActionListener {
 		revalidate();
 		repaint();
 	}
+
+	private String[] orderEdgeMethods(Set<String> registeredEdgeMethods) {
+		String[] orderedEdgeMethods = new String [4];
+		for (String name : visMgr.getVisualizationMethodRegistry()
+				.getRegisteredEdgeMethods()) {
+			System.out.println(name);
+			if(name.contains("ColorByLine")){
+				orderedEdgeMethods[0] = name;
+			}
+//			else if(name.contains("ThicknessByLine")){
+//				orderedEdgeMethods[1] = name;
+//				}
+			else if(name.contains("TextByLine")){
+					orderedEdgeMethods[1] = name;
+					}else if(name.contains("MultiTimeByLine")){
+						orderedEdgeMethods[2] = name;
+					}else if(name.contains("LineLabel")){
+						orderedEdgeMethods[3] = name;
+					}
+		}
+		return orderedEdgeMethods;
+		
+	}
 }
+	

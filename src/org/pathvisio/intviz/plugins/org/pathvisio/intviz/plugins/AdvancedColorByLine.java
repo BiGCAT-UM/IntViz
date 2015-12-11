@@ -1,3 +1,4 @@
+package org.pathvisio.intviz.plugins;
 /*package org.pathvisio.intviz.plugins;
 
 import java.awt.BasicStroke;
